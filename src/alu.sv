@@ -28,7 +28,7 @@ module alu (
     reg [7:0] alu_out_reg;
     assign alu_out = alu_out_reg;
 
-    always @(posedge clk) begin 
+    always_ff @(posedge clk) begin 
         if (reset) begin 
             alu_out_reg <= 8'b0;
         end else if (enable) begin
@@ -39,7 +39,7 @@ module alu (
                     alu_out_reg <= {5'b0, (rs - rt > 0), (rs - rt == 0), (rs - rt < 0)};
                 end else begin 
                     // Execute the specified arithmetic instruction
-                    case (decoded_alu_arithmetic_mux)
+                    unique case (decoded_alu_arithmetic_mux)
                         ADD: begin 
                             alu_out_reg <= rs + rt;
                         end
@@ -52,9 +52,10 @@ module alu (
                         DIV: begin 
                             alu_out_reg <= rs / rt;
                         end
+                        default: begin end
                     endcase
                 end
             end
         end
     end
-endmodule
+endmodule: alu
