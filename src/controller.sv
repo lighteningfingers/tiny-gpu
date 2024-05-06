@@ -46,7 +46,7 @@ module controller #(
     reg [$clog2(NUM_CONSUMERS)-1:0] current_consumer [NUM_CHANNELS-1:0]; // Which consumer is each channel currently serving
     reg [NUM_CONSUMERS-1:0] channel_serving_consumer; // Which channels are being served? Prevents many workers from picking up the same request.
 
-    always @(posedge clk) begin
+    always_ff @(posedge clk) begin
         if (reset) begin 
             mem_read_valid <= 0;
             mem_read_address <= 0;
@@ -66,7 +66,7 @@ module controller #(
         end else begin 
             // For each channel, we handle processing concurrently
             for (int i = 0; i < NUM_CHANNELS; i = i + 1) begin 
-                case (controller_state[i])
+                unique case (controller_state[i])
                     IDLE: begin
                         // While this channel is idle, cycle through consumers looking for one with a pending request
                         for (int j = 0; j < NUM_CONSUMERS; j = j + 1) begin 
@@ -126,8 +126,9 @@ module controller #(
                             controller_state[i] <= IDLE;
                         end
                     end
+                    default: begin end
                 endcase
             end
         end
     end
-endmodule
+endmodule: controller
